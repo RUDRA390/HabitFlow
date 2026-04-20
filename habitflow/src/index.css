@@ -1,42 +1,40 @@
 @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Outfit:wght@400;500;600;700;800;900&display=swap');
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
+
+/* ✅ Tailwind v4 syntax */
+@import "tailwindcss";
 
 /* ================= BASE VARIABLES ================= */
-@layer base {
-  :root {
-    --background: 222 47% 6%;
-    --foreground: 210 40% 98%;
-    --card: 222 47% 8%;
-    --card-foreground: 210 40% 98%;
-    --primary: 200 100% 60%;
-    --primary-foreground: 222 47% 6%;
-    --secondary: 217 33% 17%;
-    --muted: 217 33% 20%;
-    --border: 217 33% 25%;
-    --input: 217 33% 25%;
-    --ring: 200 100% 60%;
-  }
+:root {
+  --background: 222 47% 6%;
+  --foreground: 210 40% 98%;
+  --card: 222 47% 8%;
+  --card-foreground: 210 40% 98%;
+  --primary: 200 100% 60%;
+  --primary-foreground: 222 47% 6%;
+  --secondary: 217 33% 17%;
+  --muted: 217 33% 20%;
+  --border: 217 33% 25%;
+  --input: 217 33% 25%;
+  --ring: 200 100% 60%;
+}
 
-  * {
-    border-color: hsl(var(--border));
-    outline: none;
-  }
+* {
+  border-color: hsl(var(--border));
+  outline: none;
+}
 
-  body {
-    background-color: hsl(var(--background));
-    color: hsl(var(--foreground));
-    font-family: system-ui, sans-serif;
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    background-image: 
-      radial-gradient(at 0% 0%, rgba(0,200,255,0.15), transparent 50%),
-      radial-gradient(at 100% 0%, rgba(0,150,255,0.1), transparent 50%),
-      radial-gradient(at 100% 100%, rgba(0,200,255,0.15), transparent 50%),
-      radial-gradient(at 0% 100%, rgba(0,150,255,0.1), transparent 50%);
-    background-attachment: fixed;
-  }
+body {
+  background-color: hsl(var(--background));
+  color: hsl(var(--foreground));
+  font-family: system-ui, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  background-image: 
+    radial-gradient(at 0% 0%, rgba(0,200,255,0.15), transparent 50%),
+    radial-gradient(at 100% 0%, rgba(0,150,255,0.1), transparent 50%),
+    radial-gradient(at 100% 100%, rgba(0,200,255,0.15), transparent 50%),
+    radial-gradient(at 0% 100%, rgba(0,150,255,0.1), transparent 50%);
+  background-attachment: fixed;
 }
 
 /* ================= COMPONENT STYLES ================= */
