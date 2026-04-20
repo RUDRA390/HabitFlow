@@ -1,0 +1,30 @@
+{
+  "css.validate": false,
+  "less.validate": false,
+  "scss.validate": false,
+  "css.lint.compatibleVendorPrefixes": "ignore",
+  "css.lint.vendorPrefix": "ignore",
+  "css.lint.duplicateProperties": "ignore",
+  "css.lint.emptyRules": "ignore",
+  "css.lint.importStatement": "ignore",
+  "css.lint.keyframeUndefinedPercentages": "ignore",
+  "css.lint.zeroUnits": "ignore",
+  "css.lint.unknownAtRules": "ignore",
+  "css.lint.unknownProperties": "ignore",
+  "css.lint.universalSelector": "ignore",
+  "[css]": {
+    "editor.defaultFormatter": null,
+    "editor.formatOnSave": false
+  },
+  "stylelint.enable": false,
+  "editor.codeActionsOnSave": {
+    "source.fixAll.stylelint": "off",
+    "source.fixAll.tailwindcss": "off"
+  },
+  "tailwindCSS.lint.cssConflict": "ignore",
+  "tailwindCSS.lint.invalidApply": "ignore",
+  "tailwindCSS.lint.invalidScreen": "ignore",
+  "tailwindCSS.lint.invalidConfigPath": "ignore",
+  "tailwindCSS.lint.invalidTailwindDirective": "ignore",
+  "tailwindCSS.lint.recommendedVariantOrder": "ignore"
+}

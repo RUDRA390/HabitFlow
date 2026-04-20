@@ -1,0 +1,93 @@
+{
+  "entities": {
+    "User": {
+      "title": "User",
+      "description": "User profile and settings",
+      "type": "object",
+      "properties": {
+        "uid": { "type": "string" },
+        "email": { "type": "string" },
+        "displayName": { "type": "string" },
+        "goals": { "type": "string" },
+        "theme": { "type": "string", "enum": ["light", "dark"] },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["uid", "email"]
+    },
+    "Habit": {
+      "title": "Habit",
+      "description": "A recurring habit to track",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "name": { "type": "string" },
+        "frequency": { "type": "string", "enum": ["daily", "weekly"] },
+        "category": { "type": "string", "enum": ["Health", "Study", "Work", "Personal"] },
+        "streak": { "type": "number" },
+        "longestStreak": { "type": "number" },
+        "completedDates": { "type": "array", "items": { "type": "string" } },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "name", "frequency"]
+    },
+    "Task": {
+      "title": "Task",
+      "description": "A single to-do task",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "title": { "type": "string" },
+        "priority": { "type": "string", "enum": ["Low", "Medium", "High"] },
+        "deadline": { "type": "string", "format": "date-time" },
+        "category": { "type": "string", "enum": ["Health", "Study", "Work", "Personal"] },
+        "completed": { "type": "boolean" },
+        "createdAt": { "type": "string", "format": "date-time" }
+      },
+      "required": ["userId", "title", "priority"]
+    },
+    "FocusSession": {
+      "title": "FocusSession",
+      "description": "A recorded focus session",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "userId": { "type": "string" },
+        "duration": { "type": "number" },
+        "type": { "type": "string", "enum": ["pomodoro", "short-break", "long-break"] },
+        "startTime": { "type": "string", "format": "date-time" },
+        "endTime": { "type": "string", "format": "date-time" },
+        "coinsEarned": { "type": "number" },
+        "xpEarned": { "type": "number" }
+      },
+      "required": ["userId", "duration", "type", "startTime", "endTime"]
+    }
+  },
+  "firestore": {
+    "/users": {
+      "schema": "User",
+      "description": "Global users collection for leaderboard"
+    },
+    "/users/{userId}": {
+      "schema": "User",
+      "description": "User profile document"
+    },
+    "/users/{userId}/habits/{habitId}": {
+      "schema": "Habit",
+      "description": "Collection of user habits"
+    },
+    "/users/{userId}/tasks/{taskId}": {
+      "schema": "Task",
+      "description": "Collection of user tasks"
+    },
+    "/users/{userId}/focus_sessions/{sessionId}": {
+      "schema": "FocusSession",
+      "description": "Collection of user focus sessions"
+    },
+    "/profiles/{userId}": {
+      "schema": "User",
+      "description": "Public user profile for leaderboard"
+    }
+  }
+}

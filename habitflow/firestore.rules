@@ -1,0 +1,88 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // ===============================================================
+    // Assumed Data Model
+    // ===============================================================
+    //
+    // Collection: /users/{userId}
+    // Fields: uid, email, displayName, goals, theme, createdAt
+    //
+    // Collection: /users/{userId}/habits/{habitId}
+    // Fields: id, userId, name, frequency, category, streak, longestStreak, completedDates, createdAt
+    //
+    // Collection: /users/{userId}/tasks/{taskId}
+    // Fields: id, userId, title, priority, deadline, category, completed, createdAt
+    //
+    // ===============================================================
+
+    // Helper Functions
+    function isAuthenticated() {
+      return request.auth != null;
+    }
+
+    function isOwner(userId) {
+      return isAuthenticated() && request.auth.uid == userId;
+    }
+
+    function isValidUser(data) {
+      return data.keys().hasAll(['uid', 'email']) &&
+             data.uid is string &&
+             data.email is string;
+    }
+
+    function isValidHabit(data) {
+      return data.keys().hasAll(['userId', 'name', 'frequency']) &&
+             data.userId is string &&
+             data.name is string && data.name.size() > 0 && data.name.size() < 100 &&
+             data.frequency in ['daily', 'weekly'];
+    }
+
+    function isValidTask(data) {
+      return data.keys().hasAll(['userId', 'title', 'priority']) &&
+             data.userId is string &&
+             data.title is string && data.title.size() > 0 && data.title.size() < 200 &&
+             data.priority in ['Low', 'Medium', 'High'];
+    }
+
+    function isValidFocusSession(data) {
+      return data.keys().hasAll(['userId', 'duration', 'type', 'startTime', 'endTime']) &&
+             data.userId is string &&
+             data.duration is number &&
+             data.type in ['pomodoro', 'short-break', 'long-break'];
+    }
+
+    // Rules
+    match /users/{userId} {
+      allow get: if isOwner(userId);
+      allow create: if isOwner(userId) && isValidUser(request.resource.data);
+      allow update: if isOwner(userId) && isValidUser(request.resource.data);
+      
+      match /habits/{habitId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidHabit(request.resource.data);
+        allow update: if isOwner(userId) && isValidHabit(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+      
+      match /tasks/{taskId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidTask(request.resource.data);
+        allow update: if isOwner(userId) && isValidTask(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+
+      match /focus_sessions/{sessionId} {
+        allow read: if isOwner(userId);
+        allow create: if isOwner(userId) && isValidFocusSession(request.resource.data);
+        allow update: if isOwner(userId) && isValidFocusSession(request.resource.data);
+        allow delete: if isOwner(userId);
+      }
+    }
+
+    match /profiles/{userId} {
+      allow read: if isAuthenticated();
+      allow write: if isOwner(userId);
+    }
+  }
+}
