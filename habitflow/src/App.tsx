@@ -32,14 +32,22 @@ useEffect(() => {
 
           await checkDailyLogin(user.uid);
 
-          subscribeToHabits(user.uid, setHabits);
-          subscribeToTasks(user.uid, setTasks);
-          subscribeToFocusSessions(user.uid, setFocusSessions);
+          // 🔥 store unsubscribe functions
+          const unsubHabits = subscribeToHabits(user.uid, setHabits);
+          const unsubTasks = subscribeToTasks(user.uid, setTasks);
+          const unsubFocus = subscribeToFocusSessions(user.uid, setFocusSessions);
+
+          // 🔥 cleanup properly
+          return () => {
+            unsubHabits?.();
+            unsubTasks?.();
+            unsubFocus?.();
+          };
 
         } catch (err) {
           console.error("ERROR:", err);
         } finally {
-          setLoading(false); // 🔥 ALWAYS RUN
+          setLoading(false);
         }
       })();
     } else {
@@ -47,7 +55,7 @@ useEffect(() => {
       setHabits([]);
       setTasks([]);
       setFocusSessions([]);
-      setLoading(false); // 🔥 IMPORTANT
+      setLoading(false);
     }
   });
 
