@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { auth } from "./lib/firebase";
-import { onAuthStateChanged, User } from "firebase/auth";
+import { onAuthStateChanged, User, GoogleAuthProvider, signInWithPopup } from "firebase/auth";
 
 import {
   getUserProfile,
@@ -13,7 +13,7 @@ import {
 
 import { UserProfile, Habit, Task, FocusSession } from "./types";
 
-// ✅ UI COMPONENTS
+// UI
 import Sidebar from "./components/Sidebar";
 import Dashboard from "./components/Dashboard";
 import HabitTracker from "./components/HabitTracker";
@@ -87,7 +87,7 @@ function App() {
     return () => unsubscribe();
   }, []);
 
-  // ✅ LOADING SCREEN
+  // ✅ LOADING
   if (loading) {
     return (
       <div className="h-screen flex items-center justify-center text-white">
@@ -96,11 +96,31 @@ function App() {
     );
   }
 
-  // ❌ NOT LOGGED IN
+  // ✅ LOGIN SCREEN (FIXED 🔥)
   if (!user) {
     return (
+      <div className="h-screen flex items-center justify-center bg-background text-white">
+        <div className="text-center">
+          <h1 className="text-3xl font-bold mb-4">HabitFlow</h1>
+          <button
+            onClick={async () => {
+              const provider = new GoogleAuthProvider();
+              await signInWithPopup(auth, provider);
+            }}
+            className="bg-white text-black px-4 py-2 rounded"
+          >
+            Login with Google
+          </button>
+        </div>
+      </div>
+    );
+  }
+
+  // ⚠️ SAFETY: profile not ready
+  if (!profile) {
+    return (
       <div className="h-screen flex items-center justify-center text-white">
-        Please Login
+        Loading profile...
       </div>
     );
   }
@@ -112,15 +132,19 @@ function App() {
 
       <div className="flex-1 p-6 overflow-y-auto">
         {activeTab === "dashboard" && (
-          <Dashboard profile={profile} habits={habits} tasks={tasks} />
+          <Dashboard
+            profile={profile}
+            habits={habits || []}
+            tasks={tasks || []}
+          />
         )}
 
         {activeTab === "habits" && (
-          <HabitTracker habits={habits} userId={user.uid} />
+          <HabitTracker habits={habits || []} userId={user.uid} />
         )}
 
         {activeTab === "tasks" && (
-          <TodoList tasks={tasks} userId={user.uid} />
+          <TodoList tasks={tasks || []} userId={user.uid} />
         )}
 
         {activeTab === "focus" && (
@@ -128,7 +152,11 @@ function App() {
         )}
 
         {activeTab === "analytics" && (
-          <Analytics habits={habits} tasks={tasks} focusSessions={focusSessions} />
+          <Analytics
+            habits={habits || []}
+            tasks={tasks || []}
+            focusSessions={focusSessions || []}
+          />
         )}
 
         {activeTab === "settings" && (
