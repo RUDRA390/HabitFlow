@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useState, useEffect } from "react";
 import { auth } from "./lib/firebase";
 import { onAuthStateChanged, User } from "firebase/auth";
 
@@ -13,6 +13,15 @@ import {
 
 import { UserProfile, Habit, Task, FocusSession } from "./types";
 
+// ✅ UI COMPONENTS
+import Sidebar from "./components/Sidebar";
+import Dashboard from "./components/Dashboard";
+import HabitTracker from "./components/HabitTracker";
+import TodoList from "./components/TodoList";
+import FocusTimer from "./components/FocusTimer";
+import Analytics from "./components/Analytics";
+import Settings from "./components/Settings";
+
 function App() {
   const [user, setUser] = useState<User | null>(null);
   const [profile, setProfile] = useState<UserProfile | null>(null);
@@ -20,6 +29,8 @@ function App() {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [focusSessions, setFocusSessions] = useState<FocusSession[]>([]);
   const [loading, setLoading] = useState(true);
+
+  const [activeTab, setActiveTab] = useState("dashboard");
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, (user) => {
@@ -76,20 +87,56 @@ function App() {
     return () => unsubscribe();
   }, []);
 
+  // ✅ LOADING SCREEN
   if (loading) {
     return (
-      <div style={{ color: "white", textAlign: "center", marginTop: "50px" }}>
+      <div className="h-screen flex items-center justify-center text-white">
         Loading...
       </div>
     );
   }
 
+  // ❌ NOT LOGGED IN
+  if (!user) {
+    return (
+      <div className="h-screen flex items-center justify-center text-white">
+        Please Login
+      </div>
+    );
+  }
+
+  // ✅ MAIN UI
   return (
-    <div style={{ color: "white", textAlign: "center", marginTop: "50px" }}>
-      <h1>HabitFlow 🚀</h1>
-      {user ? <p>Welcome {profile?.displayName}</p> : <p>Please Login</p>}
+    <div className="flex h-screen bg-background text-white">
+      <Sidebar activeTab={activeTab} setActiveTab={setActiveTab} />
+
+      <div className="flex-1 p-6 overflow-y-auto">
+        {activeTab === "dashboard" && (
+          <Dashboard profile={profile} habits={habits} tasks={tasks} />
+        )}
+
+        {activeTab === "habits" && (
+          <HabitTracker habits={habits} userId={user.uid} />
+        )}
+
+        {activeTab === "tasks" && (
+          <TodoList tasks={tasks} userId={user.uid} />
+        )}
+
+        {activeTab === "focus" && (
+          <FocusTimer userId={user.uid} />
+        )}
+
+        {activeTab === "analytics" && (
+          <Analytics habits={habits} tasks={tasks} focusSessions={focusSessions} />
+        )}
+
+        {activeTab === "settings" && (
+          <Settings profile={profile} userId={user.uid} />
+        )}
+      </div>
     </div>
   );
 }
 
-export default App; // 🔥🔥🔥 MOST IMPORTANT LINE
+export default App;
