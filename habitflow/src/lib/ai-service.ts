@@ -1,7 +1,7 @@
 import { GoogleGenAI } from "@google/genai";
 import { Habit, Task, UserProfile } from "../types";
 
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+const ai = new GoogleGenAI({ apiKey: import.meta.env.VITE_GEMINI_API_KEY });
 
 export const getAIInsights = async (habits: Habit[], tasks: Task[], profile: UserProfile | null) => {
   try {
