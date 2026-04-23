@@ -41,14 +41,15 @@ Zap,
 function App() {
 const [user, setUser] = useState<User | null>(null);
 const [profile, setProfile] = useState<UserProfile | null>(null);
+
 const [habits, setHabits] = useState<Habit[]>([]);
 const [tasks, setTasks] = useState<Task[]>([]);
 const [focusSessions, setFocusSessions] = useState<FocusSession[]>([]);
-const [loading, setLoading] = useState(true);
 
+const [loading, setLoading] = useState(true);
 const [activeTab, setActiveTab] = useState("life");
 
-// ✅ NAV ITEMS FIXED
+// 🔥 NAV ITEMS
 const navItems = [
 { id: "life", label: "Life", icon: Zap },
 { id: "dashboard", label: "Dashboard", icon: LayoutDashboard },
@@ -63,19 +64,18 @@ const navItems = [
 
 useEffect(() => {
 const unsubscribe = onAuthStateChanged(auth, async (user) => {
+try {
 setUser(user);
 
 ```
-  if (!user) {
-    setProfile(null);
-    setHabits([]);
-    setTasks([]);
-    setFocusSessions([]);
-    setLoading(false);
-    return;
-  }
+    if (!user) {
+      setProfile(null);
+      setHabits([]);
+      setTasks([]);
+      setFocusSessions([]);
+      return;
+    }
 
-  try {
     let userProfile = await getUserProfile(user.uid);
 
     if (!userProfile) {
@@ -103,11 +103,21 @@ setUser(user);
 
     await checkDailyLogin(user.uid);
 
-    subscribeToHabits(user.uid, (d) => setHabits(d || []));
-    subscribeToTasks(user.uid, (d) => setTasks(d || []));
-    subscribeToFocusSessions(user.uid, (d) => setFocusSessions(d || []));
+    // 🔥 SAFE SUBSCRIPTIONS
+    subscribeToHabits(user.uid, (data) => {
+      setHabits(Array.isArray(data) ? data : []);
+    });
+
+    subscribeToTasks(user.uid, (data) => {
+      setTasks(Array.isArray(data) ? data : []);
+    });
+
+    subscribeToFocusSessions(user.uid, (data) => {
+      setFocusSessions(Array.isArray(data) ? data : []);
+    });
+
   } catch (err) {
-    console.error(err);
+    console.error("APP ERROR:", err);
   } finally {
     setLoading(false);
   }
@@ -118,48 +128,83 @@ return () => unsubscribe();
 
 }, []);
 
-if (loading) return <div className="text-white">Loading...</div>;
+// 🔥 LOADING
+if (loading) {
+return <div className="text-white p-10">Loading...</div>;
+}
 
-if (!user) return <Auth />;
+// 🔥 LOGIN
+if (!user) {
+return <Auth />;
+}
 
-if (!profile) return <div className="text-white">Loading profile...</div>;
+// 🔥 PROFILE SAFETY
+if (!profile) {
+return <div className="text-white p-10">Loading profile...</div>;
+}
+
+// 🔥 SAFE ARRAYS (IMPORTANT)
+const safeHabits = habits || [];
+const safeTasks = tasks || [];
+const safeFocus = focusSessions || [];
 
 const renderContent = () => {
 switch (activeTab) {
 case "life":
-return <LifeDashboard profile={profile} habits={habits} tasks={tasks} />;
-case "dashboard":
-return <Dashboard profile={profile} habits={habits} tasks={tasks} />;
-case "habits":
-return <HabitTracker habits={habits} userId={user.uid} />;
-case "tasks":
-return <TodoList tasks={tasks} userId={user.uid} />;
-case "focus":
-return <FocusTimer userId={user.uid} />;
-case "analytics":
-return <Analytics habits={habits} tasks={tasks} profile={profile} />;
-case "shop":
-return <RewardShop profile={profile} userId={user.uid} />;
-case "social":
-return <Social profile={profile} />;
-case "settings":
-return <Settings profile={profile} userId={user.uid} />;
-default:
-return <LifeDashboard profile={profile} habits={habits} tasks={tasks} />;
-}
-};
-
-return ( <div className="flex h-screen bg-background text-white"> <Sidebar
-     activeTab={activeTab}
-     setActiveTab={setActiveTab}
-     profile={profile}
-     navItems={navItems}
-   />
+return <LifeDashboard profile={profile} habits={safeHabits} tasks={safeTasks} />;
 
 ```
+  case "dashboard":
+    return <Dashboard profile={profile} habits={safeHabits} tasks={safeTasks} />;
+
+  case "habits":
+    return <HabitTracker habits={safeHabits} userId={user.uid} />;
+
+  case "tasks":
+    return <TodoList tasks={safeTasks} userId={user.uid} />;
+
+  case "focus":
+    return <FocusTimer userId={user.uid} />;
+
+  case "analytics":
+    return (
+      <Analytics
+        habits={safeHabits}
+        tasks={safeTasks}
+        profile={profile}
+      />
+    );
+
+  case "shop":
+    return <RewardShop profile={profile} userId={user.uid} />;
+
+  case "social":
+    return <Social profile={profile} />;
+
+  case "settings":
+    return <Settings profile={profile} userId={user.uid} />;
+
+  default:
+    return <LifeDashboard profile={profile} habits={safeHabits} tasks={safeTasks} />;
+}
+```
+
+};
+
+return ( <div className="flex h-screen bg-background text-white">
+
+```
+  <Sidebar
+    activeTab={activeTab}
+    setActiveTab={setActiveTab}
+    profile={profile}
+    navItems={navItems}
+  />
+
   <div className="flex-1 p-6 overflow-y-auto">
     {renderContent()}
   </div>
+
 </div>
 ```
 
